@@ -96,7 +96,7 @@ proc output_coef_data_2015 {filt channel binary_point} {
     write_bin "/tmp/power_filter$channel" filt_out
 }
 
-proc output_coef_data {filt channel binary_point} {
+proc output_coef_data_2023 {filt channel binary_point} {
     # Converts filt to fixed point, scaling by 2**binary_point,
     # and formats the filter to be written to the FPGA
     set filt_fixed [ list ]
@@ -117,6 +117,11 @@ proc output_coef_data {filt channel binary_point} {
     write_bin "/tmp/power_filter$channel" filt_out
 }
 
+set output_coef_data output_coef_data_2023
+if { [info exists ::env("BOLO_OUTPUT_COEFF_DATA_VINTAGE")] {
+	set output_coef_data $::env("BOLO_OUTPUT_COEFF_DATA_VINTAGE")
+}
+
 proc produce_filter_data {NTAPS FC FS ATTEN BINARY_POINT sens tau channel} {
     if { $sens == 0 } {
         # A failed calibration precludes designing a useful filter.
@@ -131,7 +136,8 @@ proc produce_filter_data {NTAPS FC FS ATTEN BINARY_POINT sens tau channel} {
         set filt [ create_deconvolution_filter $taps_norm $dfdt $sens $tau ]
     }
     # Finally, output the data
-    output_coef_data $filt $channel $BINARY_POINT
+
+    $output_coef_data $filt $channel $BINARY_POINT
 }
 
 produce_filter_data $NTAPS $FC $FS $ATTEN $BINARY_POINT $sens $tau $channel
