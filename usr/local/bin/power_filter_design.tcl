@@ -118,11 +118,13 @@ proc output_coef_data_2023 {filt channel binary_point} {
 }
 
 set output_coef_data output_coef_data_2023
-if { [info exists ::env("BOLO_OUTPUT_COEFF_DATA_VINTAGE")] {
-	set output_coef_data $::env("BOLO_OUTPUT_COEFF_DATA_VINTAGE")
+if { [info exists ::env(BOLO_OUTPUT_COEFF_DATA_VINTAGE)] } {
+    set output_coef_data "output_coef_data_$::env(BOLO_OUTPUT_COEFF_DATA_VINTAGE)"
 }
 
+
 proc produce_filter_data {NTAPS FC FS ATTEN BINARY_POINT sens tau channel} {
+    global output_coef_data
     if { $sens == 0 } {
         # A failed calibration precludes designing a useful filter.
         # Explicitly zero the output to make clear it shouldn't be used.
