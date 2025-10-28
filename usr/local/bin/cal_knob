@@ -1,0 +1,47 @@
+#!/bin/sh
+# Knob for presenting calibration results from the /tmp/calibfit.log file.
+# To be sym-linked under the following names:
+# - "CAL:SENS" to return sensitivity values
+# - "CAL:TAU" to return time constant values
+# - "CAL:IOFF" to return I-offset values
+# - "CAL:QOFF" to return Q-offset values
+#
+# An argument must be provided to specify either "ALL" or an integer channel number.
+
+# Strip off everything before the colon to determine which parameter to return.
+BASENAME=$(basename ${0})
+PARAM="${BASENAME##*:}"
+
+COL=0
+case "${PARAM}" in
+    SENS)
+        COL=2;;
+    TAU)
+        COL=3;;
+    IOFF)
+        COL=4;;
+    QOFF)
+        COL=5;;
+    *)
+        # We should never encounter this path unless the symbolic links
+        # to this script are mis-configured.
+        echo "ERROR: Bad basename: ${BASENAME}"
+        exit
+esac
+
+if [[ -z $1 ]]; then
+    echo "ERROR: no channel argument, must provide a number or 'ALL'"
+    exit
+elif [[ "$1" = "ALL" ]]; then
+    # Special case to print all values for a column.
+    echo $(awk -v col="$COL" '{print $col}' /tmp/calibfit.log)
+    exit
+elif ! [[ "$1" =~ ^[0-9]+$ ]]; then
+    # If the input arg is not "ALL", it must be an integer.
+    echo "ERROR: channel argument '$1' is neither 'ALL' nor an integer."
+    exit
+fi
+
+# Print just a given channel's value for a column. If the channel is
+# out of range, awk will just print nothing, which is fine.
+echo $(awk -v ch="$1" -v col="$COL" 'NR == ch {print $col}' /tmp/calibfit.log)

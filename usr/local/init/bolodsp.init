@@ -24,6 +24,14 @@ ln -s /usr/local/bin/reset.dsp  /etc/acq400/14/PULSE_DSP_RESET
 ln -s /usr/local/bin/set.fdrive /etc/acq400/14/SET_FDRIVE
 echo "default" > /etc/acq400/14/BOLO_ACTIVE_CHAN
 
+# symlinks for the knob querying calibration values
+# Provide four different names to the same underlying script,
+# enabling reading different values from the same data file.
+ln -s /usr/local/bin/cal_knob /etc/acq400/14/CAL:SENS
+ln -s /usr/local/bin/cal_knob /etc/acq400/14/CAL:TAU
+ln -s /usr/local/bin/cal_knob /etc/acq400/14/CAL:IOFF
+ln -s /usr/local/bin/cal_knob /etc/acq400/14/CAL:QOFF
+
 /usr/local/CARE/acq400_dspfs.init
 cat /usr/local/CARE/BOLO/bolo8dsp-regdef >/dev/dsp1/.create
 ln -s /dev/dsp1/* /etc/acq400/14/
