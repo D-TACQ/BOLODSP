@@ -32,6 +32,12 @@ ln -s /usr/local/bin/cal_knob /etc/acq400/14/CAL:TAU
 ln -s /usr/local/bin/cal_knob /etc/acq400/14/CAL:IOFF
 ln -s /usr/local/bin/cal_knob /etc/acq400/14/CAL:QOFF
 
+# Comment out the acq400_teardown command from the run0 script.
+# As per Peter Milne's advice (documented in SW-7316), this command
+# is the source of occasional flakes in run0's execution, and
+# furthermore it is not actually necessary, so we can just skip it.
+sed -ie 's/acq400_teardown/#acq400_teardown/' /usr/local/bin/run0
+
 /usr/local/CARE/acq400_dspfs.init
 cat /usr/local/CARE/BOLO/bolo8dsp-regdef >/dev/dsp1/.create
 ln -s /dev/dsp1/* /etc/acq400/14/
