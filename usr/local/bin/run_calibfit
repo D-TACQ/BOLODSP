@@ -13,7 +13,7 @@ rv() {
 run_calibfit0() {
 if [ ! -e /mnt/local/sysconfig/bolo.sh ]; then
 cat - >/mnt/local/sysconfig/bolo.sh <<EOF
-BOLO_ACTIVE_CHAN="1 2 3 4 5 6 7 8"
+BOLO_ACTIVE_CHAN="default"
 BOLO_VERBOSE=1
 # to customize calibfit, change next line
 # eg CALIBFITARGS="-H 0.85"
@@ -34,10 +34,14 @@ source /mnt/local/sysconfig/bolo.sh
 
 
 if [ -e /etc/acq400/14/BOLO_ACTIVE_CHAN ]; then
-        bac=$(cat /etc/acq400/14/BOLO_ACTIVE_CHAN)
-        if [ ! -z $bac ] && [ "$bac" != "default" ]; then
-                BOLO_ACTIVE_CHAN=$(echo $bac | tr , \  )
-        fi
+    bac=$(cat /etc/acq400/14/BOLO_ACTIVE_CHAN)
+
+    if [ -z "$bac" ] || [ "$bac" = "default" ]; then
+        nchan=$(cat /etc/acq400/14/ACTIVE_CHAN)
+        bac=$(seq 1 "$nchan" | paste -sd, -)
+    fi
+
+    BOLO_ACTIVE_CHAN=$(echo "$bac" | tr , \  )
 fi
 
 # Don't do anything if calibration is not enabled.
