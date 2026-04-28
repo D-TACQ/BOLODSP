@@ -15,7 +15,7 @@
 filter_ready() {
     s14=/etc/acq400/14
     filter_status=$(cat $s14/FILTER_STATUS)
-    voltage_ready=$(cat $14/FS_VR)
+    voltage_ready=$(cat $s14/FS_VR)
     power_ready=$(cat $s14/FS_PR)
     echo >&2 "filter_status $filter_status vr $voltage_ready pw $power_ready"
     echo $((voltage_ready*power_ready))
