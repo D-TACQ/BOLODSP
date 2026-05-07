@@ -52,6 +52,18 @@ Comment out "acq400_teardown" from the run0 script, since it is not necessary to
 
 Ref: [SW-7316: DTACQ run0 command sometimes hangs in nightly runs](https://cfsenergy.atlassian.net/browse/SW-7316)
 
+## FPGA Image Notes
+
+A variety of FPGA images are available onboard the DTACQ at `/mnt/fpga.d/`. The image used on boot is whichever is found in `/mnt/`. To change images, simply delete whichever image is currently there (taking care to save a copy if needed), replace it with whichever image you wish to use, then `sync; sync; reboot`.
+
+### ACQ2106_TOP_64_64_64_64_64_64_9815_9080_32B_UDP.bit.gz
+
+This is the image DTACQ originally recommended we use for HUDP.
+
+### ACQ2106_TOP_64_64_64_64_64_64_9815_9080_32B_UDP_RAWDATA.bit.gz
+
+This is the image DTACQ provided us for receiving raw data over UDP.
+
 # BOLODSP:
 
 DSP automation routines for BOLO8.
