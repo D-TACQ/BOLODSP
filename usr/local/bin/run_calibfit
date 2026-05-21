@@ -54,7 +54,9 @@ BOLO_VERBOSE=${BOLO_VERBOSE:-1}
 LOAD_POWER_FILTERS=${LOAD_POWER_FILTERS:-1}
 BOLO_LOAD_OFFSETS=${BOLO_LOAD_OFFSETS:-1}
 COPY_CALIB_DATA=${COPY_CALIB_DATA:-1}
-CALIBFIT_EXCITEV=${CALIBFIT_EXCITEV:-18.0}
+
+# Corresponds to 18V
+CALIBFIT_DAC_EXCITE_AMP=3
 
 BOLO_GAIN=${BOLO_GAIN:-1V2}
 case "$BOLO_GAIN" in
@@ -82,6 +84,9 @@ rm -f /tmp/calibfit.log
 
 [ -n "$CALIBFITARGS" ] && echo "custom CALIBFITARGS $CALIBFITARGS"
 
+OLD_DAC_EXCITE_AMP="$(get.site 14 DAC_EXCITE_AMP)"
+[ "$BOLO_VERBOSE" -eq 1 ] && echo "Found DAC_EXCITE_AMP=$OLD_DAC_EXCITE_AMP."
+[ "$BOLO_VERBOSE" -eq 1 ] && echo "Setting DAC_EXCITE_AMP to $CALIBFIT_DAC_EXCITE_AMP."
 
 set_gains_reset_os_dacs() {
 
@@ -132,10 +137,14 @@ wait_until_state 1
 bolo_calibration
 
 [ "$BOLO_VERBOSE" -eq 1 ] && echo "Fitting data"
-export CALIBFIT_EXCITEV
 
-time -f "calibfit took %E" /usr/local/bin/calibfit.py -t -n "$nsamples" -g "$BOLO_GAIN" $CALIBFITARGS $BOLO_ACTIVE_CHAN > /tmp/calibfit.log
+CALIBFIT_EXCITEV=18.0 time -f "calibfit took %E" /usr/local/bin/calibfit.py -t -n "$nsamples" -g "$BOLO_GAIN" $CALIBFITARGS $BOLO_ACTIVE_CHAN > /tmp/calibfit.log
 [ $BOLO_VERBOSE -eq 1 ] && cat /tmp/calibfit.log
+
+# Once this is done, we can return the Excite DAC amplitude.
+[ "$BOLO_VERBOSE" -eq 1 ] && echo "Returning to DAC_EXCITE_AMP=$OLD_DAC_EXCITE_AMP."
+set.site 14 DAC_EXCITE_AMP=$OLD_DAC_EXCITE_AMP
+
 echo "run_calibfit1 99"
 } # run_calibfit1
 
