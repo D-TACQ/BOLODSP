@@ -37,7 +37,9 @@ if [ -e /etc/acq400/14/BOLO_ACTIVE_CHAN ]; then
     bac=$(cat /etc/acq400/14/BOLO_ACTIVE_CHAN)
 
     if [ -z "$bac" ] || [ "$bac" = "default" ]; then
-        nchan=$(cat /etc/acq400/14/ACTIVE_CHAN)
+        nchan=$(cat /etc/acq400/0/spadstart)
+        nchan=$(( nchan / 4 ))
+        nchan=$(( nchan / 3 ))
         bac=$(seq 1 "$nchan" | paste -sd, -)
     fi
 
