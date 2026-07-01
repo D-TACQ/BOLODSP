@@ -22,7 +22,7 @@ filter_ready() {
 }
 
 wait_until_filter_ready () {
-    if [ $(filter_ready) -eq 0 ]; then
+    if [ "$(filter_ready)" -eq 0 ]; then
         if [ "$1" != "nospawn" ]
         then
             orig_transient=$(set.site 0 transient)
@@ -33,7 +33,7 @@ wait_until_filter_ready () {
         # Poll until the filters are ready
         while true
         do
-	    if $(filter_ready) -eq 1 ]; then
+	    if [ "$(filter_ready)" -eq 1 ]; then
                 break
             else
                 sleep 0.5
