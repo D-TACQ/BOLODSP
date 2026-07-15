@@ -1,5 +1,6 @@
 #!/bin/sh
 # Set up the DSP
+echo "[bolo_powerup_init.sh] Start" > /dev/kmsg
 set.fdrive 18e3
 
 CUSTOM=/mnt/local/sysconfig/bolo.sh
@@ -53,8 +54,19 @@ set.sys /sys/module/acq420fmc/parameters/FIFERR 0
 
 # Start a capture to set the DAC output going, to Ohmically heat the sensor.
 # DAC output will continue even after the capture has finished.
+shot=$(cat /dev/acq400.1.knobs/shot)
+echo "[bolo_powerup_init.sh] Arming Shot" > /dev/kmsg
 set.site 0 transient PRE=0 POST=1000 SOFT_TRIGGER=1
 set.site 0 set_arm
-wait_until_state 5  # Data collection finished.
-# Reset DSP to ensure channel ordering is correct for first acquisition.
-reset.dsp
+while [ "$(cat /dev/acq400.1.knobs/completed_shot)" -ne $((shot + 1)) ]; do
+	sleep 0.1
+done
+
+timeout 30 reset.dsp # Reset DSP to ensure channel ordering is correct for first acquisition
+rc=$?
+if [ $rc -ne 0 ]; then
+    echo "[bolo_powerup_init.sh] DSP reset timed out" > /dev/kmsg
+fi
+
+echo "1" > /tmp/BOLO_INIT_COMPLETE
+echo "[bolo_powerup_init.sh] End" > /dev/kmsg
