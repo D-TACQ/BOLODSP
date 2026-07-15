@@ -12,6 +12,9 @@
 # argument to the script. This will bypass starting a new transient capture.
 # After the script returns, the transient capture can be aborted.
 
+CALLER_PID=$PPID
+CALLER_COMM=$(cat /proc/$CALLER_PID/comm 2>/dev/null || echo unknown)
+
 filter_ready() {
     s14=/etc/acq400/14
     filter_status=$(cat $s14/FILTER_STATUS)
@@ -22,6 +25,7 @@ filter_ready() {
 }
 
 wait_until_filter_ready () {
+     echo "[wait_for_filters] Start - $CALLER_COMM($CALLER_PID)" > /dev/kmsg
     if [ "$(filter_ready)" -eq 0 ]; then
         if [ "$1" != "nospawn" ]
         then
@@ -33,6 +37,7 @@ wait_until_filter_ready () {
         # Poll until the filters are ready
         while true
         do
+        echo "[wait_for_filters] Waiting for ready - $CALLER_COMM($CALLER_PID)" > /dev/kmsg
 	    if [ "$(filter_ready)" -eq 1 ]; then
                 break
             else
@@ -45,6 +50,8 @@ wait_until_filter_ready () {
             set.site 0 transient "$orig_transient"
         fi
     fi
+    echo "[wait_for_filters] Complete - $CALLER_COMM($CALLER_PID)" > /dev/kmsg
+    echo
 }
 
 wait_until_filter_ready $1
